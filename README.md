@@ -4,10 +4,8 @@
 
 This application helps users understand their digital presence by scraping data available online and offering insights into how much personal information is publicly accessible. The app aims to raise awareness of social engineering risks and digital privacy.
 
-## **Application Links**
-- **[Production Environment](https://cscloud8-111.lnu.se)**  
-- **[Staging Environment](https://cscloud8-111.lnu.se/staging/)**  
-
+## **Demonstration video**  
+[![Demo](images/VideoImage.png)](https://youtu.be/UJbkOmh8h0Q)
 ---
 
 ## **Project Structure**

@@ -1,0 +1,52 @@
+stages: # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - deploy-staging
+  - deploy-production
+
+build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"  
+      --dockerfile "${CI_PROJECT_DIR}/Authentication/Dockerfile.production"
+      --destination "${CI_REGISTRY_IMAGE}/auth:${CI_COMMIT_TAG:-latest}"
+
+test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0 # Use .NET SDK Docker image for testing
+  script:
+    - echo "Running tests..."
+    - dotnet test
+  allow_failure: false # Fail the pipeline if tests do not pass
+
+
+deploy-staging:
+  stage: deploy-staging
+  image:
+    name: gcr.io/k8s-skaffold/skaffold:v2.8.0
+    entrypoint: ['']
+  script:
+    - kubectl config use-context $K8S_CONTEXT_STAGING
+    - kubectl delete secret regcred || true
+    - kubectl create secret docker-registry regcred --docker-server=$CI_REGISTRY --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
+    - skaffold deploy --images ${CI_REGISTRY_IMAGE}/auth:${CI_COMMIT_TAG:-latest}
+    - kubectl get all
+    - kubectl get ingress
+
+deploy-production:
+  stage: deploy-production
+  image:
+    name: gcr.io/k8s-skaffold/skaffold:v2.8.0
+    entrypoint: ['']
+  when: manual
+  script:
+    - kubectl config use-context $K8S_CONTEXT
+    - kubectl delete secret regcred || true
+    - kubectl create secret docker-registry regcred --docker-server=$CI_REGISTRY --docker-username=$CI_DEPLOY_USER --docker-password=$CI_DEPLOY_PASSWORD
+    - skaffold deploy --images ${CI_REGISTRY_IMAGE}/auth:${CI_COMMIT_TAG:-latest}
+    - kubectl get all
+    - kubectl get ingress

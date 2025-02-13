@@ -1,0 +1,19 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata:
+  name: k8s-web-application
+build:
+  artifacts:
+    - image: gitlab.lnu.se:5050/2dv013/student/team-2024-03-pikachu/data-services/data-service
+      docker:
+        dockerfile: data-service/Dockerfile.production
+    - image: gitlab.lnu.se:5050/2dv013/student/team-2024-03-pikachu/data-services/data-scraper
+      docker:
+        dockerfile: data-scraper/Dockerfile.production
+manifests:
+  rawYaml:
+    - data-service/k8s/rabbitmq.yaml
+    - data-service/k8s/data-service.yaml 
+    - data-scraper/k8s/scraper.yaml
+deploy:
+  kubectl: {}

@@ -1,0 +1,12 @@
+#TODO:  1. INSTALL ALSO LOCAL PATH PROVISIONER: kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.30/deploy/local-path-storage.yaml
+# 2. Set local storage storage class as default: kubectl annotate storageclass local-path storageclass.kubernetes.io/is-default-class=true 
+
+
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: rabbitmq-storage
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner:  rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer

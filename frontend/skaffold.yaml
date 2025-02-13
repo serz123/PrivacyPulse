@@ -1,0 +1,28 @@
+# skaflold.yaml
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata:
+  name: k8s-web-application
+build:
+  artifacts:
+    - image: gitlab.lnu.se:5050/2dv013/student/team-2024-03-pikachu/frontend/front
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - k8s/frontend.yaml
+deploy:
+  kubectl: {}
+
+profiles:
+- name: staging
+  patches:
+    - op: add
+      path: /manifests/rawYaml/-
+      value: k8s/ingress.staging.yaml # Adds the staging ingress
+
+- name: production
+  patches:
+    - op: add
+      path: /manifests/rawYaml/-
+      value: k8s/ingress.production.yaml # Adds the production ingress

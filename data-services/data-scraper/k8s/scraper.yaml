@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-scraper
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      deployment.name: data-scraper
+  template:
+    metadata:
+      labels:
+        deployment.name: data-scraper
+    spec:
+      initContainers:
+      - name: wait-for-rabbitmq
+        image: busybox
+        command: ["sh", "-c", "echo Waiting for RabbitMQ; sleep 10"]
+      containers:
+      - name: data-scraper
+        #image: scraper
+        image: gitlab.lnu.se:5050/2dv013/student/team-2024-03-pikachu/data-services/data-scraper
+        env:
+        - name: PORT
+          value: "3001"
+        - name: BASE_URL
+          value: "/"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq.default.svc.cluster.local"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: API_KEY
+          value: "AIzaSyBnIGezCt2RNy_JKlX0Eovdpwg-sRGwBpo"
+        - name: SEARCH_ENGINE_ID
+          value: "729e67114604548ea"
+      imagePullSecrets:
+      - name: regcred # Secret set as a secret in the cluster
+

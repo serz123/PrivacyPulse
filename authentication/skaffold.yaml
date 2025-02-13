@@ -1,0 +1,16 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata:
+  name: k8s-web-application
+build:
+  artifacts:
+    - image: gitlab.lnu.se:5050/2dv013/student/team-2024-03-pikachu/authentication/auth
+      docker:
+        dockerfile: Authentication/Dockerfile.production
+manifests:
+  rawYaml:
+    - k8s/storage.yaml
+    - k8s/postgres.yaml
+    - k8s/auth.yaml
+deploy:
+  kubectl: {}

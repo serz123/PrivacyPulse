@@ -1,0 +1,35 @@
+{
+  "name": "data-scraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js --env-file=.env",
+    "dev": "nodemon --inspect --env-file=.env src/index.js",
+    "lint": "npx eslint ./src || exit 0",
+    "lint:fix": "npx eslint ./src --fix || exit 0",
+    "docker:dev": "docker compose -p 2dv013-jit-dev -f docker-compose.yaml -f docker-compose.development.yaml up --build",
+    "docker:prod": "docker compose -p 2dv013-jit -f docker-compose.yaml -f docker-compose.production.yaml up --build",
+    "test": "jest"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@jest/globals": "^29.7.0",
+    "amqplib": "^0.10.5",
+    "data-scraper": "file:",
+    "jsdom": "^25.0.1",
+    "node-fetch": "^3.3.2",
+    "puppeteer": "^23.11.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.7"
+  }
+}

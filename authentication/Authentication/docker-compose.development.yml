@@ -1,0 +1,61 @@
+version: "3.8"
+services:
+  postgresql-master:
+    image: bitnami/postgresql
+    restart: always
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    volumes:
+      - postgresql_master_data:/bitnami/postgresql
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+    environment:
+      - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
+      - POSTGRESQL_LOG_HOSTNAME=true
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_user
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DATABASE}
+      - ALLOW_EMPTY_PASSWORD=yes
+
+  postgresql-slave:
+    image: bitnami/postgresql
+    restart: always
+    ports:
+      - '${POSTGRES_REPLICATION_PORT}:5432'
+    depends_on:
+      - postgresql-master
+    environment:
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_MASTER_HOST=postgresql-master
+      - POSTGRESQL_PGAUDIT_LOG=READ
+      - POSTGRESQL_LOG_HOSTNAME=true
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_user
+      - POSTGRESQL_MASTER_PORT_NUMBER=${POSTGRES_PORT}
+      - ALLOW_EMPTY_PASSWORD=yes
+
+  authentication-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    ports:
+      - "5000:8080"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_HOST=postgresql-master
+      - POSTGRES_REPLICATION_PORT=${POSTGRES_REPLICATION_PORT}
+      
+    depends_on:
+      - postgresql-master
+      - postgresql-slave
+
+volumes:
+  postgresql_master_data:
+    driver: local

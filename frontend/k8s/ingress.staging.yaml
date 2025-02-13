@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    # Add any necessary annotations here
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: cscloud8-134.lnu.se
+      http:
+        paths:
+          - path: /api/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth
+                port:
+                  number: 5000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 8888
+          - path: /api/data
+            pathType: Prefix
+            backend:
+              service:
+                name: data
+                port:
+                  number: 6000
